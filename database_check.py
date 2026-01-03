@@ -1,11 +1,15 @@
 from sqlalchemy import create_engine, text
 import os
 import sys
+import urllib.parse
+
+raw_password = os.environ['DB_PASS']
+safe_password = urllib.parse.quote_plus(raw_password)
 
 # Format: postgresql+psycopg2://user:password@host:port/dbname
 db_string = "postgresql+psycopg2://{}:{}@localhost:5432/{}".format(
     os.environ['DB_USER'],
-    os.environ['DB_PASS'],
+    safe_password,  # <--- We use the encoded password here
     os.environ['DB_NAME']
 )
 
