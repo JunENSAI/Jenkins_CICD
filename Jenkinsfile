@@ -1,38 +1,40 @@
 pipeline {
     agent any
 
-    // Input ask when you build with parameters
+    /*
+    // use parameters when you are new on jenkins, it will ask you to complete all of the parameter in UI
     parameters {
         string(name: 'DB_USER', defaultValue: 'jenkins_user', description: 'Database User')
         string(name: 'DB_NAME', defaultValue: 'your_db_name', description: 'Database Name')
         password(name: 'DB_PASS', defaultValue: 'your_password', description: 'Database Password')
     }
+    */
 
     environment {
-        // map the input parameters to Environment Variables safely
+        /*
+        map the input parameters to Environment Variables safely
         DB_USER = "${params.DB_USER}"
         DB_NAME = "${params.DB_NAME}"
-        DB_PASS = "${params.DB_PASS}"
+        DB_PASS =  params.DB_PASS //"${params.DB_PASS}"
+        */
+
+        // if you don't want to add always the parameter create a credials to store all of your parameters definitely
+        DB_CREDS = credentials('my-local-postgres')
+        
+        // We map them to the names your Python script expects
+        DB_USER = "${DB_CREDS_USR}"
+        DB_PASS = "${DB_CREDS_PSW}"
+        DB_NAME = "your_db_name"
     }
 
     stages {
-        stage('Setup Environment') {
+        stage('Setup & Test') {
             steps {
-                echo '--- Creating Virtual Environment ---'
+                echo '--- Testing Connection with Stored Credentials ---'
                 sh '''
                     python3 -m venv venv
                     . venv/bin/activate
                     pip install -r requirements.txt
-                '''
-            }
-        }
-
-        stage('Run Database Check') {
-            steps {
-                echo '--- Running Python Scripts ---'
-                // We use the same virtual environment
-                sh '''
-                    . venv/bin/activate
                     python database_check.py
                 '''
             }
