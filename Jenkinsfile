@@ -20,13 +20,19 @@ pipeline {
 
         // if you don't want to add always the parameter create a credials to store all of your parameters definitely
         DB_CREDS = credentials('my-local-postgres')
+
+        DB_NAME = "db_jenkins"
     }
 
     stages {
         stage('Setup & Test') {
             steps {
+                
                 echo '--- Testing Connection with Stored Credentials ---'
                 sh '''
+                    export DB_USER=$DB_CREDS_USR
+                    export DB_PASS=$DB_CREDS_PSW
+
                     python3 -m venv venv
                     . venv/bin/activate
                     pip install -r requirements.txt
