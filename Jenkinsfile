@@ -22,9 +22,9 @@ pipeline {
         DB_CREDS = credentials('my-local-postgres')
         
         // We map them to the names your Python script expects
-        DB_USER = "${DB_CREDS_USR}"
-        DB_PASS = "${DB_CREDS_PSW}"
-        DB_NAME = "your_db_name"
+        DB_USER = DB_CREDS_USR
+        DB_PASS = DB_CREDS_PSW
+        DB_NAME = "db_jenkins"
     }
 
     stages {
