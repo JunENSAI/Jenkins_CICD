@@ -20,11 +20,6 @@ pipeline {
 
         // if you don't want to add always the parameter create a credials to store all of your parameters definitely
         DB_CREDS = credentials('my-local-postgres')
-        
-        // We map them to the names your Python script expects
-        DB_USER = "DB_CREDS_USR"
-        DB_PASS = "DB_CREDS_PSW"
-        DB_NAME = "db_jenkins"
     }
 
     stages {
