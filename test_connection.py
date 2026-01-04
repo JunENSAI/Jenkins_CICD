@@ -19,4 +19,6 @@ def test_database_connection():
         result = connection.execute(text("SELECT 1;"))
         value = result.fetchone()[0]
 
-        assert value == 1
+        # assert value == 1 true value
+
+        assert value == 2
