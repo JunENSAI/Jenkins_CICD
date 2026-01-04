@@ -19,6 +19,6 @@ def test_database_connection():
         result = connection.execute(text("SELECT 1;"))
         value = result.fetchone()[0]
 
-        # assert value == 1 true value
+    assert value == 1 # case when you have the excepted output
 
-        assert value == 2
+        # assert value == 2 try this to see when the test failed

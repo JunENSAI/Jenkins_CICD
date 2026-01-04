@@ -51,6 +51,20 @@ pipeline {
                 '''
             }
         }
+
+        stage('Deploy to DB') {
+            steps {
+                echo '--- Deploying Database Changes ---'
+                sh '''
+                    export DB_USER=$DB_CREDS_USR
+                    export DB_PASS=$DB_CREDS_PSW
+                    export DB_NAME=$DB_NAME
+                    
+                    . venv/bin/activate
+                    python create_table.py
+                '''
+            }
+        }
     }
     
     // Post-actions: Run this whether the build succeeds or fails
