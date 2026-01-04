@@ -25,20 +25,38 @@ pipeline {
     }
 
     stages {
-        stage('Setup & Test') {
+        stage('Setup') {
             steps {
-                
-                echo '--- Testing Connection with Stored Credentials ---'
                 sh '''
-                    export DB_USER=$DB_CREDS_USR
-                    export DB_PASS=$DB_CREDS_PSW
-
                     python3 -m venv venv
                     . venv/bin/activate
                     pip install -r requirements.txt
-                    python database_check.py
                 '''
             }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                echo '--- Running Pytest ---'
+                sh '''
+                    export DB_USER=$DB_CREDS_USR
+                    export DB_PASS=$DB_CREDS_PSW
+                    export DB_NAME=$DB_NAME
+                    
+                    . venv/bin/activate
+                    
+                    # Run tests and save result to a file (junit.xml)
+                    # This allows Jenkins to make a graph of your test results!
+                    pytest --junitxml=results.xml test_connection.py
+                '''
+            }
+        }
+    }
+    
+    // Post-actions: Run this whether the build succeeds or fails
+    post {
+        always {
+            junit 'results.xml' 
         }
     }
 }
