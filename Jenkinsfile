@@ -10,6 +10,13 @@ pipeline {
     }
     */
 
+    // Triggers define WHEN the job runs automatically
+    triggers {
+        // Run every night at 3:00 AM
+        // Cron Syntax: Minute Hour Day Month DayOfWeek
+        cron('H 3 * * *') 
+    }
+
     environment {
         /*
         map the input parameters to Environment Variables safely
@@ -22,6 +29,10 @@ pipeline {
         DB_CREDS = credentials('my-local-postgres')
 
         DB_NAME = "db_jenkins"
+
+        // Define a filename based on the current date
+        // e.g., backup-2023-10-27.sql
+        BACKUP_FILE = "backup-${new Date().format('yyyy-MM-dd')}.sql"
     }
 
     stages {
@@ -65,12 +76,33 @@ pipeline {
                 '''
             }
         }
+
+        stage('Perform Backup') {
+            steps {
+                echo "--- Backing up ${DB_NAME} to ${BACKUP_FILE} ---"
+                
+                // We use PGPASSWORD env var so pg_dump doesn't ask for a password interactively
+                sh '''
+                    export PGPASSWORD=$DB_CREDS_PSW
+                    
+                    # Run pg_dump
+                    # -h localhost : Host
+                    # -U ...       : Username
+                    # -F p         : Format plain text (so you can read it)
+                    # -f ...       : Output filename
+                    pg_dump -h localhost -U $DB_CREDS_USR -F p -f $BACKUP_FILE $DB_NAME
+                '''
+            }
+        }
     }
     
     // Post-actions: Run this whether the build succeeds or fails
     post {
         always {
             junit 'results.xml' 
+            // Archive Artifacts: This saves the file inside Jenkins permanently
+            // You can download it from the Jenkins UI later
+            archiveArtifacts artifacts: '*.sql', fingerprint: true
         }
     }
 }
