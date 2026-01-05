@@ -119,7 +119,6 @@ pipeline {
             }
         }
     }
-    }
     
     // Post-actions: Run this whether the build succeeds or fails
     post {
