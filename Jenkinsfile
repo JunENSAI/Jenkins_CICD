@@ -10,12 +10,13 @@ pipeline {
     }
     */
 
+    /*
     // Triggers define WHEN the job runs automatically
     triggers {
         // Run every night at 3:00 AM
         // Cron Syntax: Minute Hour Day Month DayOfWeek
         cron('H 3 * * *') 
-    }
+    }*/
 
     environment {
         /*
