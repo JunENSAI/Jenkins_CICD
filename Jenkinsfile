@@ -32,7 +32,7 @@ pipeline {
 
         // Define a filename based on the current date
         // e.g., backup-2023-10-27.sql
-        BACKUP_FILE = "backup-${new Date().format('yyyy-MM-dd')}.sql"
+        //BACKUP_FILE = "backup-${new Date().format('yyyy-MM-dd')}.sql"
     }
 
     stages {
@@ -62,7 +62,7 @@ pipeline {
                 '''
             }
         }
-
+        /*
         stage('Deploy to DB') {
             steps {
                 echo '--- Deploying Database Changes ---'
@@ -76,7 +76,9 @@ pipeline {
                 '''
             }
         }
+        */
 
+        /*
         stage('Perform Backup') {
             steps {
                 echo "--- Backing up ${DB_NAME} to ${BACKUP_FILE} ---"
@@ -94,15 +96,40 @@ pipeline {
                 '''
             }
         }
+        */
+        // Just imagine if you are DROP by accident your table 
+        stage('Restore Database') {
+            steps {
+                echo "--- STARTING RESTORE PROCEDURE ---"
+                
+                script {
+                    // Check if file was actually uploaded
+                    if (!fileExists('restore_upload.sql')) {
+                        error "No backup file uploaded!"
+                    }
+                }
+
+                // Run psql to inject the SQL file back into the database
+                sh '''
+                    export PGPASSWORD=$DB_CREDS_PSW
+                    
+                    echo "Restoring from uploaded file..."
+                    psql -h localhost -U $DB_CREDS_USR -d $DB_NAME -f restore_upload.sql
+                '''
+            }
+        }
+    }
     }
     
     // Post-actions: Run this whether the build succeeds or fails
     post {
         always {
             junit 'results.xml' 
+            /*
             // Archive Artifacts: This saves the file inside Jenkins permanently
             // You can download it from the Jenkins UI later
             archiveArtifacts artifacts: '*.sql', fingerprint: true
+            */
         }
     }
 }
