@@ -53,7 +53,7 @@ pipeline {
         stage('Setup python env') {
             steps {
                 sh '''
-                    rm -rf .local enkins_env
+                    rm -rf jenkins_env venv .local
                     pip install --user -r requirements.txt
                 '''
             }
