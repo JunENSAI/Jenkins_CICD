@@ -82,11 +82,13 @@ pipeline {
                 stage('Linting') {
                     steps {
                         sh '''
+                            # Add the local user bin to PATH so python finds flake8
                             export PATH=$PATH:$HOME/.local/bin
                             
-                            # Now the system can find flake8
-                            flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-                            flake8 . --count --max-complexity=10 --max-line-length=127 --statistics
+                            # CRITICAL: We added "--exclude .local"
+                            python3 -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude .local,venv
+                            
+                            python3 -m flake8 . --count --max-complexity=10 --max-line-length=127 --statistics --exclude .local,venv
                         '''
                     }
                 }
