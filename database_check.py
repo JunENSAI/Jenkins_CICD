@@ -21,7 +21,7 @@ try:
         result = connection.execute(text("SELECT version();"))
         version = result.fetchone()[0]
         
-        print(f"SUCCESS: Connected via SQLAlchemy!")
+        print("SUCCESS: Connected via SQLAlchemy!")
         print(f"Database Version: {version}")
 
 except Exception as e:
