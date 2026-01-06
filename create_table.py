@@ -26,9 +26,9 @@ sql_insert_log = text("INSERT INTO jenkins_audit (message) VALUES ('Jenkins Pipe
 with engine.connect() as connection:
     print("--- Creating Table (if not exists) ---")
     connection.execute(sql_create_table)
-    
+
     print("--- Inserting Deployment Log ---")
     connection.execute(sql_insert_log)
-    
+
     connection.commit()
     print("SUCCESS: Database updated.")

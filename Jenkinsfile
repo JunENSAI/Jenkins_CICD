@@ -42,37 +42,67 @@ pipeline {
 
         DISCORD_URL = credentials('discord-webhook-url')
 
+        HOME = "${env.WORKSPACE}"
+
         // Define a filename based on the current date
         // e.g., backup-2023-10-27.sql
         //BACKUP_FILE = "backup-${new Date().format('yyyy-MM-dd')}.sql"
     }
 
     stages {
-        stage('Setup') {
+        stage('Setup python env') {
             steps {
                 sh '''
-                    python3 -m venv venv
-                    . venv/bin/activate
-                    pip install -r requirements.txt
+                    pip install --user -r requirements.txt
                 '''
             }
         }
 
-        stage('Unit Tests') {
-            steps {
-                echo '--- Running Pytest ---'
-                sh '''
-                    export DB_USER=$DB_CREDS_USR
-                    export DB_PASS=$DB_CREDS_PSW
-                    export DB_NAME=$DB_NAME
-                    
-                    . venv/bin/activate
-                    
-                    # Run tests and save result to a file (junit.xml) with pytest --junitxml=results.xml
-                    # This allows Jenkins to make a graph of your test results!
-                    pytest test_connection.py
-                '''
+        stage('Quality & Checks') {
+            failFast true // If one fails, stop the other immediately to save time
+            parallel {
+                
+                // Branch A: The Unit Tests
+                stage('Unit Tests') {
+                    steps {
+                        echo '--- Running Pytest ---'
+                        sh '''
+                            export DB_USER=$DB_CREDS_USR
+                            export DB_PASS=$DB_CREDS_PSW
+                            export DB_NAME=$DB_NAME
+
+                            export PATH=$PATH:$HOME/.local/bin
+                            pytest test_connection.py
+                        '''
+                    }
+                }
+
+                // Branch B: Code Quality (Linting)
+                stage('Linting') {
+                    steps {
+                        echo '--- Grading Code with Pylint ---'
+                        sh '''
+                            # Add the local user bin to PATH
+                            export PATH=$PATH:$HOME/.local/bin
+                            
+                            echo "Starting Pylint..."
+                            
+                            # Run Pylint on all .py files
+                            # --disable=C0114,C0115,C0116: Ignore "Missing Docstring" warnings
+                            # --fail-under=5.0: The build passes if you score at least 5 out of 10
+                            
+                            pylint *.py --disable=C0114,C0115,C0116 --fail-under=5.0
+                        '''
+                    }
+                }
             }
+        }
+        
+        // Only deploy if BOTH parallel stages passed
+        stage('Deploy') {
+             steps {
+                 echo '--- Deployment Placeholder ---'
+             }
         }
         /*
         stage('Deploy to DB') {
