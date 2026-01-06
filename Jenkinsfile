@@ -70,7 +70,8 @@ pipeline {
                             export DB_USER=$DB_CREDS_USR
                             export DB_PASS=$DB_CREDS_PSW
                             export DB_NAME=$DB_NAME
-                            python3 -m pytest test_connection.py
+                            . venv/bin/activate
+                            pytest test_connection.py
                         '''
                     }
                 }
