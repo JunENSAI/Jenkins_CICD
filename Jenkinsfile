@@ -51,8 +51,7 @@ pipeline {
         stage('Setup python env') {
             steps {
                 sh '''
-                    python3 -m venv venv
-                    . venv/bin/activate
+                    rm -rf venv
                     pip install -r requirements.txt
                 '''
             }
@@ -70,8 +69,7 @@ pipeline {
                             export DB_USER=$DB_CREDS_USR
                             export DB_PASS=$DB_CREDS_PSW
                             export DB_NAME=$DB_NAME
-                            . venv/bin/activate
-                            pytest test_connection.py
+                            python3 -m pytest test_connection.py
                         '''
                     }
                 }
