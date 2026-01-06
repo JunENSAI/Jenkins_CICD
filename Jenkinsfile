@@ -40,6 +40,8 @@ pipeline {
 
         DB_NAME = "db_jenkins"
 
+        DISCORD_URL = credentials('discord-webhook-url')
+
         // Define a filename based on the current date
         // e.g., backup-2023-10-27.sql
         //BACKUP_FILE = "backup-${new Date().format('yyyy-MM-dd')}.sql"
@@ -152,7 +154,7 @@ pipeline {
                         link: env.BUILD_URL, 
                         result: currentBuild.currentResult, 
                         title: "${env.JOB_NAME} - Build #${env.BUILD_NUMBER}", 
-                        webhookURL: 'https://discord.com/api/webhooks/1458077492676919448/az_3rCOwOjAoNDSqv1osnvSjSYikuP-dx2S7zZk2sHIy6KzfzJ-Uz2EsuHvghdKtgaPb'
+                        webhookURL: env.DISCORD_URL
         }
         failure {
             discordSend description: "Build FAILED ", 
