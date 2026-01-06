@@ -1,5 +1,14 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            // Jenkins will download this image, start it, run your steps, and delete it.
+            // We use an image that already has Python 3.9 installed.
+            image 'python:3.9-slim' 
+            
+            // Critical: We map the local network so the container can see your Postgres on localhost
+            args '--network="host"'
+        }
+    } // default parameter is : any if you don't want agent
 
     /*
     // use parameters when you are new on jenkins, it will ask you to complete all of the parameter in UI
@@ -57,9 +66,9 @@ pipeline {
                     
                     . venv/bin/activate
                     
-                    # Run tests and save result to a file (junit.xml)
+                    # Run tests and save result to a file (junit.xml) with pytest --junitxml=results.xml
                     # This allows Jenkins to make a graph of your test results!
-                    pytest --junitxml=results.xml test_connection.py
+                    pytest test_connection.py
                 '''
             }
         }
@@ -98,6 +107,7 @@ pipeline {
             }
         }
         */
+        /*
         // Just imagine if you are DROP by accident your table 
         stage('Restore Database') {
             steps {
@@ -119,17 +129,20 @@ pipeline {
                 '''
             }
         }
+        */
     }
-    
+    /*
     // Post-actions: Run this whether the build succeeds or fails
     post {
         always {
             junit 'results.xml' 
-            /*
+            
             // Archive Artifacts: This saves the file inside Jenkins permanently
             // You can download it from the Jenkins UI later
             archiveArtifacts artifacts: '*.sql', fingerprint: true
-            */
+            
         }
     }
+    */
+    
 }
