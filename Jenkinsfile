@@ -144,5 +144,24 @@ pipeline {
         }
     }
     */
+    // Send notification to discord server teams
+    post {
+        success {
+            discordSend description: "Build Succeeded!", 
+                        footer: "Jenkins Agent: Docker", 
+                        link: env.BUILD_URL, 
+                        result: currentBuild.currentResult, 
+                        title: "${env.JOB_NAME} - Build #${env.BUILD_NUMBER}", 
+                        webhookURL: 'https://discord.com/api/webhooks/1458077492676919448/az_3rCOwOjAoNDSqv1osnvSjSYikuP-dx2S7zZk2sHIy6KzfzJ-Uz2EsuHvghdKtgaPb'
+        }
+        failure {
+            discordSend description: "Build FAILED ", 
+                        footer: "Check the logs immediately.", 
+                        link: env.BUILD_URL, 
+                        result: currentBuild.currentResult, 
+                        title: "${env.JOB_NAME} - Build #${env.BUILD_NUMBER}", 
+                        webhookURL: 'PASTE_YOUR_DISCORD_URL_HERE'
+        }
+    }
     
 }
