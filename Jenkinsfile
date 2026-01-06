@@ -51,6 +51,8 @@ pipeline {
         stage('Setup python env') {
             steps {
                 sh '''
+                    python3 -m venv jenkins_env
+                    . jenkins_env/bin/activate
                     pip install -r requirements.txt
                 '''
             }
@@ -68,6 +70,7 @@ pipeline {
                             export DB_USER=$DB_CREDS_USR
                             export DB_PASS=$DB_CREDS_PSW
                             export DB_NAME=$DB_NAME
+                            . jenkins_env/bin/activate
                             python3 -m pytest test_connection.py
                         '''
                     }
