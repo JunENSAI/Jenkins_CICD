@@ -19,4 +19,4 @@ def test_database_connection():
 
         # Expect 1
         assert value == 1
-    
+        
