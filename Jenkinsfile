@@ -70,7 +70,7 @@ pipeline {
                             export DB_USER=$DB_CREDS_USR
                             export DB_PASS=$DB_CREDS_PSW
                             export DB_NAME=$DB_NAME
-                            pytest test_connection.py
+                            python3 -m pytest test_connection.py
                         '''
                     }
                 }
@@ -81,8 +81,8 @@ pipeline {
                         echo '--- Checking Code Style ---'
                         // fail-under=90 means if code score is below 9/10, FAIL the build.
                         // We exclude venv so it doesn't check library files.
-                        sh 'flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics'
-                        sh 'flake8 . --count --max-complexity=10 --max-line-length=127 --statistics'
+                        sh 'python3 -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics'
+                        sh 'python3 -m flake8 . --count --max-complexity=10 --max-line-length=127 --statistics'
                     }
                 }
             }
