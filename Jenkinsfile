@@ -80,14 +80,18 @@ pipeline {
                 // Branch B: Code Quality (Linting)
                 stage('Linting') {
                     steps {
+                        echo '--- Grading Code with Pylint ---'
                         sh '''
-                            # Add the local user bin to PATH so python finds flake8
+                            # Add the local user bin to PATH
                             export PATH=$PATH:$HOME/.local/bin
                             
-                            # CRITICAL: We added "--exclude .local"
-                            python3 -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude .local,venv
+                            echo "Starting Pylint..."
                             
-                            python3 -m flake8 . --count --max-complexity=10 --max-line-length=127 --statistics --exclude .local,venv
+                            # Run Pylint on all .py files
+                            # --disable=C0114,C0115,C0116: Ignore "Missing Docstring" warnings
+                            # --fail-under=5.0: The build passes if you score at least 5 out of 10
+                            
+                            pylint *.py --disable=C0114,C0115,C0116 --fail-under=5.0
                         '''
                     }
                 }

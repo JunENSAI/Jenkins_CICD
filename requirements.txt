@@ -2,4 +2,4 @@ sqlalchemy
 psycopg2-binary
 pytest
 pytest-cov
-flake8
+pylint
