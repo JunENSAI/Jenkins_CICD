@@ -48,7 +48,7 @@ pipeline {
     }
 
     stages {
-        stage('Setup') {
+        stage('Setup python env') {
             steps {
                 sh '''
                     python3 -m venv venv
@@ -58,21 +58,41 @@ pipeline {
             }
         }
 
-        stage('Unit Tests') {
-            steps {
-                echo '--- Running Pytest ---'
-                sh '''
-                    export DB_USER=$DB_CREDS_USR
-                    export DB_PASS=$DB_CREDS_PSW
-                    export DB_NAME=$DB_NAME
-                    
-                    . venv/bin/activate
-                    
-                    # Run tests and save result to a file (junit.xml) with pytest --junitxml=results.xml
-                    # This allows Jenkins to make a graph of your test results!
-                    pytest test_connection.py
-                '''
+        stage('Quality & Checks') {
+            failFast true // If one fails, stop the other immediately to save time
+            parallel {
+                
+                // Branch A: The Unit Tests
+                stage('Unit Tests') {
+                    steps {
+                        echo '--- Running Pytest ---'
+                        sh '''
+                            export DB_USER=$DB_CREDS_USR
+                            export DB_PASS=$DB_CREDS_PSW
+                            export DB_NAME=$DB_NAME
+                            pytest test_connection.py
+                        '''
+                    }
+                }
+
+                // Branch B: Code Quality (Linting)
+                stage('Linting') {
+                    steps {
+                        echo '--- Checking Code Style ---'
+                        // fail-under=90 means if code score is below 9/10, FAIL the build.
+                        // We exclude venv so it doesn't check library files.
+                        sh 'flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics'
+                        sh 'flake8 . --count --max-complexity=10 --max-line-length=127 --statistics'
+                    }
+                }
             }
+        }
+        
+        // Only deploy if BOTH parallel stages passed
+        stage('Deploy') {
+             steps {
+                 echo '--- Deployment Placeholder ---'
+             }
         }
         /*
         stage('Deploy to DB') {
