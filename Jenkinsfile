@@ -42,6 +42,8 @@ pipeline {
 
         DISCORD_URL = credentials('discord-webhook-url')
 
+        HOME = "${env.WORKSPACE}"
+
         // Define a filename based on the current date
         // e.g., backup-2023-10-27.sql
         //BACKUP_FILE = "backup-${new Date().format('yyyy-MM-dd')}.sql"
@@ -51,9 +53,8 @@ pipeline {
         stage('Setup python env') {
             steps {
                 sh '''
-                    python3 -m venv jenkins_env
-                    . jenkins_env/bin/activate
-                    pip install -r requirements.txt
+                    rm -rf .local enkins_env
+                    pip install --user -r requirements.txt
                 '''
             }
         }
@@ -70,8 +71,9 @@ pipeline {
                             export DB_USER=$DB_CREDS_USR
                             export DB_PASS=$DB_CREDS_PSW
                             export DB_NAME=$DB_NAME
-                            . jenkins_env/bin/activate
-                            python3 -m pytest test_connection.py
+
+                            export PATH=$PATH:$HOME/.local/bin
+                            pytest test_connection.py
                         '''
                     }
                 }
@@ -79,11 +81,13 @@ pipeline {
                 // Branch B: Code Quality (Linting)
                 stage('Linting') {
                     steps {
-                        echo '--- Checking Code Style ---'
-                        // fail-under=90 means if code score is below 9/10, FAIL the build.
-                        // We exclude venv so it doesn't check library files.
-                        sh 'python3 -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics'
-                        sh 'python3 -m flake8 . --count --max-complexity=10 --max-line-length=127 --statistics'
+                        sh '''
+                            export PATH=$PATH:$HOME/.local/bin
+                            
+                            # Now the system can find flake8
+                            flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+                            flake8 . --count --max-complexity=10 --max-line-length=127 --statistics
+                        '''
                     }
                 }
             }
