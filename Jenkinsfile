@@ -51,7 +51,6 @@ pipeline {
         stage('Setup python env') {
             steps {
                 sh '''
-                    rm -rf venv
                     pip install -r requirements.txt
                 '''
             }
